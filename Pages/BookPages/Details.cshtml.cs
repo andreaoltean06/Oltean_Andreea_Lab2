@@ -3,35 +3,42 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Oltean_Andreea_Lab2.Models;
 
-namespace Oltean_Andreea_Lab2.Pages.BookPages;
-
-public class DetailsModel : PageModel
+namespace Oltean_Andreea_Lab2.Pages.BookPages
 {
-    private readonly Oltean_Andreea_Lab2Context _context;
-    public DetailsModel(Oltean_Andreea_Lab2Context context)
+    public class DetailsModel : PageModel
     {
-        _context = context;
-    }
+        private readonly Oltean_Andreea_Lab2Context _context;
 
-    public Book Book { get; set; } = default!;
-
-    public async Task<IActionResult> OnGetAsync(int? id)
-    {
-        if (id is null)
+        public DetailsModel(Oltean_Andreea_Lab2Context context)
         {
-            return NotFound();
+            _context = context;
         }
 
-        var book = await _context.Book.Include(b => b.Publisher).Include(b => b.Author).FirstOrDefaultAsync(m => m.ID == id);
-        if (book is null)
-        {
-            return NotFound();
-        }
-        else
-        {
-            Book = book;
-        }
+        public Book Book { get; set; } = default!;
 
-        return Page();
+        public async Task<IActionResult> OnGetAsync(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var book = await _context.Book
+                .Include(b => b.Publisher)
+                .Include(b => b.Author)
+                .Include(b => b.BookCategories)
+                    .ThenInclude(b => b.Category)
+                .FirstOrDefaultAsync(m => m.ID == id);
+
+            if (book == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                Book = book;
+            }
+            return Page();
+        }
     }
 }
