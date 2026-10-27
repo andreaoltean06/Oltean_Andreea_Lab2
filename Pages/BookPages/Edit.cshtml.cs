@@ -25,7 +25,6 @@ public class EditModel : BookCategoriesPageModel
             return NotFound();
         }
 
-        // Încărcăm cartea împreună cu Publisher și BookCategories -> Category
         Book = await _context.Book
             .Include(b => b.Publisher)
             .Include(b => b.BookCategories).ThenInclude(b => b.Category)
@@ -37,7 +36,6 @@ public class EditModel : BookCategoriesPageModel
             return NotFound();
         }
 
-        // LINIA IMPORTANTA: Populează lista de categorii pentru checkbox-uri
         PopulateAssignedCategoryData(_context, Book);
 
         var authorList = _context.Author.Select(x => new
@@ -52,8 +50,7 @@ public class EditModel : BookCategoriesPageModel
         return Page();
     }
 
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see https://aka.ms/RazorPagesCRUD.
+    
     public async Task<IActionResult> OnPostAsync(int? id, string[] selectedCategories)
     {
         if (id == null)
@@ -75,7 +72,7 @@ public class EditModel : BookCategoriesPageModel
         if (await TryUpdateModelAsync<Book>(
             bookToUpdate,
             "Book",
-            i => i.Title, i => i.Author,
+            i => i.Title, i => i.AuthorID,
             i => i.Price, i => i.PublishingDate, i => i.PublisherID))
         {
             UpdateBookCategories(_context, selectedCategories, bookToUpdate);
